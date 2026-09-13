@@ -4,308 +4,9 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <meta name="color-scheme" content="dark" />
-  <title>HTML to Video — Studio V1</title>
-  <style>
-    :root {
-      --bg: #07090d;
-      --panel: #0d1117;
-      --panel-2: #111722;
-      --line: rgba(255,255,255,.08);
-      --line-2: rgba(255,255,255,.13);
-      --text: #f7f9fc;
-      --muted: #8d98aa;
-      --accent: #8b5cf6;
-      --accent-2: #22d3ee;
-      --good: #34d399;
-      --warn: #f59e0b;
-      --danger: #fb7185;
-      --radius: 18px;
-      --shadow: 0 18px 60px rgba(0,0,0,.38);
-    }
-
-    * { box-sizing: border-box; }
-    html, body { min-height: 100%; }
-    body {
-      margin: 0;
-      background:
-        radial-gradient(circle at 12% 8%, rgba(139,92,246,.12), transparent 28%),
-        radial-gradient(circle at 88% 0%, rgba(34,211,238,.08), transparent 24%),
-        var(--bg);
-      color: var(--text);
-      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      overflow-x: hidden;
-    }
-
-    button, select, textarea, input { font: inherit; }
-    button { color: inherit; }
-
-    .shell { min-height: 100vh; display: grid; grid-template-rows: auto 1fr; }
-
-    .topbar {
-      height: 68px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 0 22px;
-      border-bottom: 1px solid var(--line);
-      background: rgba(7,9,13,.8);
-      backdrop-filter: blur(18px);
-      position: sticky;
-      top: 0;
-      z-index: 20;
-    }
-
-    .brand { display: flex; align-items: center; gap: 12px; }
-    .brand-mark {
-      width: 36px;
-      height: 36px;
-      border-radius: 11px;
-      display: grid;
-      place-items: center;
-      background: linear-gradient(135deg, var(--accent), var(--accent-2));
-      box-shadow: 0 0 35px rgba(139,92,246,.28);
-      font-weight: 900;
-      letter-spacing: -.04em;
-    }
-    .brand-copy { display: grid; gap: 2px; }
-    .brand-copy strong { font-size: 14px; letter-spacing: .01em; }
-    .brand-copy span { font-size: 11px; color: var(--muted); }
-
-    .top-actions { display: flex; gap: 9px; align-items: center; }
-    .pill {
-      height: 34px;
-      padding: 0 11px;
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      border: 1px solid var(--line);
-      border-radius: 999px;
-      background: rgba(255,255,255,.03);
-      color: var(--muted);
-      font-size: 12px;
-    }
-    .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--good); box-shadow: 0 0 15px rgba(52,211,153,.75); }
-
-    .workspace {
-      display: grid;
-      grid-template-columns: minmax(380px, 48%) minmax(380px, 52%);
-      min-height: calc(100vh - 68px);
-    }
-
-    .editor-side, .preview-side { min-width: 0; }
-    .editor-side {
-      display: grid;
-      grid-template-rows: auto 1fr auto;
-      border-right: 1px solid var(--line);
-      background: rgba(10,13,18,.72);
-    }
-
-    .section-head {
-      min-height: 58px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 0 16px;
-      border-bottom: 1px solid var(--line);
-      gap: 12px;
-    }
-
-    .tabs { display: flex; gap: 6px; }
-    .tab {
-      border: 1px solid transparent;
-      border-radius: 10px;
-      background: transparent;
-      padding: 8px 11px;
-      color: var(--muted);
-      cursor: pointer;
-      transition: .18s ease;
-    }
-    .tab:hover { color: var(--text); background: rgba(255,255,255,.04); }
-    .tab.active { color: var(--text); border-color: var(--line); background: rgba(255,255,255,.055); }
-
-    .editor-wrap { position: relative; min-height: 430px; }
-    .editor {
-      position: absolute;
-      inset: 0;
-      width: 100%;
-      height: 100%;
-      resize: none;
-      border: 0;
-      outline: 0;
-      padding: 18px 20px 28px;
-      background: #090d13;
-      color: #d6def0;
-      font: 13px/1.7 "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
-      tab-size: 2;
-      display: none;
-    }
-    .editor.active { display: block; }
-
-    .statusbar {
-      min-height: 48px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 0 14px;
-      border-top: 1px solid var(--line);
-      background: #0b0f15;
-      color: var(--muted);
-      font-size: 12px;
-    }
-    .status-left, .status-right { display: flex; gap: 14px; align-items: center; }
-
-    .preview-side {
-      display: grid;
-      grid-template-rows: auto 1fr auto;
-      background:
-        linear-gradient(transparent 31px, rgba(255,255,255,.025) 32px),
-        linear-gradient(90deg, transparent 31px, rgba(255,255,255,.025) 32px),
-        #080b10;
-      background-size: 32px 32px;
-    }
-
-    .controls { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
-    .control {
-      height: 34px;
-      border: 1px solid var(--line);
-      border-radius: 10px;
-      background: rgba(255,255,255,.035);
-      color: var(--text);
-      padding: 0 10px;
-      outline: none;
-    }
-    select.control { cursor: pointer; }
-
-    .btn {
-      height: 36px;
-      border-radius: 11px;
-      border: 1px solid var(--line);
-      background: rgba(255,255,255,.04);
-      padding: 0 13px;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-      cursor: pointer;
-      transition: transform .15s ease, border-color .15s ease, background .15s ease, opacity .15s ease;
-    }
-    .btn:hover { transform: translateY(-1px); border-color: var(--line-2); background: rgba(255,255,255,.065); }
-    .btn:active { transform: translateY(0) scale(.985); }
-    .btn-primary {
-      border-color: rgba(139,92,246,.45);
-      background: linear-gradient(135deg, rgba(139,92,246,.92), rgba(99,102,241,.92));
-      box-shadow: 0 10px 28px rgba(99,102,241,.22);
-    }
-    .btn-primary:hover { background: linear-gradient(135deg, rgba(139,92,246,1), rgba(99,102,241,1)); }
-    .btn[disabled] { cursor: not-allowed; opacity: .45; transform: none; }
-
-    .stage-shell {
-      min-height: 0;
-      padding: 24px;
-      display: grid;
-      place-items: center;
-      overflow: auto;
-    }
-    .stage-card {
-      width: min(100%, 1080px);
-      border: 1px solid var(--line-2);
-      border-radius: 16px;
-      padding: 12px;
-      background: rgba(10,14,20,.88);
-      box-shadow: var(--shadow);
-    }
-    .stage-meta {
-      display: flex;
-      justify-content: space-between;
-      gap: 12px;
-      align-items: center;
-      padding: 2px 4px 11px;
-      color: var(--muted);
-      font-size: 11px;
-    }
-    .viewport-wrap {
-      width: 100%;
-      aspect-ratio: 16/9;
-      position: relative;
-      overflow: hidden;
-      border-radius: 11px;
-      background: #000;
-      border: 1px solid rgba(255,255,255,.08);
-    }
-    iframe {
-      position: absolute;
-      inset: 0;
-      width: 100%;
-      height: 100%;
-      border: 0;
-      background: white;
-    }
-
-    .bottom-panel {
-      min-height: 74px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 14px;
-      padding: 12px 16px;
-      border-top: 1px solid var(--line);
-      background: rgba(7,10,14,.9);
-      backdrop-filter: blur(10px);
-    }
-    .timeline-info { min-width: 0; display: grid; gap: 4px; }
-    .timeline-info strong { font-size: 13px; }
-    .timeline-info span { font-size: 11px; color: var(--muted); }
-    .render-actions { display: flex; gap: 8px; }
-
-    .toast {
-      position: fixed;
-      right: 18px;
-      bottom: 18px;
-      z-index: 50;
-      min-width: 260px;
-      max-width: 420px;
-      padding: 12px 14px;
-      border-radius: 13px;
-      border: 1px solid var(--line-2);
-      background: rgba(14,19,27,.94);
-      box-shadow: var(--shadow);
-      color: var(--text);
-      font-size: 13px;
-      transform: translateY(18px);
-      opacity: 0;
-      pointer-events: none;
-      transition: .22s ease;
-    }
-    .toast.show { transform: translateY(0); opacity: 1; }
-
-    .kbd {
-      padding: 2px 6px;
-      border-radius: 6px;
-      border: 1px solid var(--line);
-      background: rgba(255,255,255,.035);
-      color: #c8d0dc;
-      font-size: 10px;
-    }
-
-    @media (max-width: 980px) {
-      .workspace { grid-template-columns: 1fr; }
-      .editor-side { border-right: 0; border-bottom: 1px solid var(--line); min-height: 620px; }
-      .preview-side { min-height: 680px; }
-      .top-actions .pill { display: none; }
-    }
-
-    @media (max-width: 640px) {
-      .topbar { padding: 0 12px; }
-      .brand-copy span { display: none; }
-      .section-head { align-items: flex-start; flex-direction: column; padding: 12px; }
-      .controls { width: 100%; }
-      .control { flex: 1 1 30%; min-width: 80px; }
-      .stage-shell { padding: 12px; }
-      .bottom-panel { align-items: flex-start; flex-direction: column; }
-      .render-actions { width: 100%; }
-      .render-actions .btn { flex: 1; }
-    }
-  </style>
+  <title>HTML to Video — Studio V2</title>
+  <link rel="stylesheet" href="/styles.css" />
+  <script src="/app.js" defer></script>
 </head>
 <body>
   <div class="shell">
@@ -314,12 +15,12 @@
         <div class="brand-mark">HV</div>
         <div class="brand-copy">
           <strong>HTML to Video</strong>
-          <span>Studio V1 · Browser Preview Engine</span>
+          <span>Studio V2 · Browser Render Experiment</span>
         </div>
       </div>
       <div class="top-actions">
-        <div class="pill"><span class="dot"></span>Preview engine ready</div>
-        <button class="btn" id="resetBtn" title="Reset demo">Reset</button>
+        <div class="pill" id="capabilityLabel"><span class="dot"></span>Checking browser recorder…</div>
+        <button class="btn" id="resetBtn">Reset</button>
         <button class="btn btn-primary" id="runBtn">▶ Run preview</button>
       </div>
     </header>
@@ -332,7 +33,7 @@
             <button class="tab" data-tab="css">CSS</button>
             <button class="tab" data-tab="js">JS</button>
           </div>
-          <span class="pill">Auto preview <span id="autoState">ON</span></span>
+          <span class="pill">Auto preview ON</span>
         </div>
 
         <div class="editor-wrap">
@@ -345,7 +46,7 @@
           <div class="status-left">
             <span>UTF-8</span>
             <span id="lineInfo">HTML</span>
-            <span>No build step</span>
+            <span>Sandboxed preview</span>
           </div>
           <div class="status-right">
             <span><span class="kbd">Ctrl</span> + <span class="kbd">Enter</span> preview</span>
@@ -357,7 +58,7 @@
         <div class="section-head">
           <div>
             <strong style="font-size:13px">Live Preview</strong>
-            <span style="display:block;color:var(--muted);font-size:11px;margin-top:3px">Runs inside an isolated iframe</span>
+            <span style="display:block;color:var(--muted);font-size:11px;margin-top:3px">HTML/CSS/JS runs inside an isolated iframe</span>
           </div>
           <div class="controls">
             <select class="control" id="sizeSelect" aria-label="Video size">
@@ -367,13 +68,15 @@
               <option value="1280x720">1280×720</option>
             </select>
             <select class="control" id="fpsSelect" aria-label="FPS">
+              <option value="24">24 FPS</option>
               <option value="30">30 FPS</option>
               <option value="60" selected>60 FPS</option>
             </select>
             <select class="control" id="formatSelect" aria-label="Format">
+              <option value="webm" selected>WebM</option>
               <option value="mp4">MP4</option>
-              <option value="webm">WebM</option>
             </select>
+            <input class="control duration" id="durationInput" type="number" min="1" max="120" step="0.5" value="6" aria-label="Duration seconds" title="Duration in seconds" />
           </div>
         </div>
 
@@ -384,240 +87,62 @@
               <span id="previewStatus">Ready</span>
             </div>
             <div class="viewport-wrap" id="viewportWrap">
+              <div class="capture-badge" id="captureBadge"><i></i>REC</div>
               <iframe id="previewFrame" sandbox="allow-scripts" title="HTML preview"></iframe>
             </div>
           </div>
         </div>
 
         <div class="bottom-panel">
-          <div class="timeline-info">
-            <strong>Render pipeline</strong>
-            <span>V1 ships the editor + live preview. Server render engine comes next.</span>
+          <div class="timeline">
+            <div class="timeline-head">
+              <div class="timeline-title">
+                <strong>Timeline</strong>
+                <span>Basic Web Animations seek/pause bridge. Complex JS/GSAP remains best-effort in V2.</span>
+              </div>
+              <div class="transport">
+                <button class="btn" id="restartBtn">↺ Restart</button>
+                <button class="btn" id="playBtn">▶ Play</button>
+              </div>
+            </div>
+            <div class="scrub-row">
+              <span id="timeNow">00:00.0</span>
+              <input class="scrub" id="scrub" type="range" min="0" max="6000" value="0" step="16" aria-label="Timeline" />
+              <span id="timeEnd">00:06.0</span>
+            </div>
           </div>
-          <div class="render-actions">
-            <button class="btn" id="snapshotBtn">⧉ Refresh</button>
-            <button class="btn btn-primary" id="renderBtn" disabled title="Render engine will be connected in V2">Render video</button>
+
+          <div class="render-box">
+            <div class="render-row">
+              <button class="btn" id="refreshBtn">↻ Refresh</button>
+              <a class="btn btn-good download" id="downloadBtn" href="#">↓ Download</a>
+              <button class="btn btn-primary" id="renderBtn">● Render video</button>
+            </div>
+            <div class="progress-shell"><div class="progress-bar" id="progressBar"></div></div>
+            <div class="render-note" id="renderStatus">V2 captures the browser tab locally. No server render and no upload.</div>
           </div>
         </div>
       </section>
     </main>
   </div>
 
-  <div class="toast" id="toast"></div>
-
-  <script>
-    const defaults = {
-      html: `<main class="scene">
-  <div class="orb orb-a"></div>
-  <div class="orb orb-b"></div>
-  <div class="grid"></div>
-  <div class="content">
-    <div class="eyebrow">HTML → VIDEO</div>
-    <h1>Motion graphics<br>from web code.</h1>
-    <p>CSS · JavaScript · GSAP · Canvas · WebGL</p>
-    <button>Render-ready composition</button>
+  <div class="modal-backdrop" id="captureModal">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="captureTitle">
+      <h3 id="captureTitle">Start browser render</h3>
+      <p>
+        This V2 experiment records the composition directly in your browser using screen capture + MediaRecorder.
+        When Chrome asks what to share, choose <strong style="color:var(--text)">This Tab</strong> / the current HTML to Video tab, then press Share.
+      </p>
+      <p class="fineprint">
+        Requested output: <span id="modalFormat">WEBM</span> · <span id="modalDuration">6 seconds</span>. MP4 only works when the browser exposes an MP4 MediaRecorder codec; otherwise V2 automatically falls back to WebM. Region Crop is used when the browser supports it; otherwise the app switches to a clean full-tab capture layout.
+      </p>
+      <div class="actions">
+        <button class="btn" id="modalCancel">Cancel</button>
+        <button class="btn btn-primary" id="modalStart">Continue to capture</button>
+      </div>
+    </div>
   </div>
-</main>`,
-      css: `* { box-sizing: border-box; }
-html, body { width: 100%; height: 100%; margin: 0; overflow: hidden; }
-body {
-  font-family: Inter, system-ui, sans-serif;
-  background: #06070a;
-  color: #fff;
-}
-.scene {
-  position: relative;
-  width: 100vw;
-  height: 100vh;
-  display: grid;
-  place-items: center;
-  overflow: hidden;
-  background:
-    radial-gradient(circle at 20% 15%, rgba(139,92,246,.16), transparent 34%),
-    radial-gradient(circle at 83% 24%, rgba(34,211,238,.13), transparent 30%),
-    #06070a;
-}
-.grid {
-  position: absolute;
-  inset: 0;
-  opacity: .22;
-  background-image:
-    linear-gradient(rgba(255,255,255,.08) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255,255,255,.08) 1px, transparent 1px);
-  background-size: 48px 48px;
-  mask-image: linear-gradient(to bottom, transparent, black 24%, black 76%, transparent);
-}
-.orb {
-  position: absolute;
-  width: 34vw;
-  aspect-ratio: 1;
-  border-radius: 50%;
-  filter: blur(60px);
-  opacity: .4;
-  animation: float 7s ease-in-out infinite alternate;
-}
-.orb-a { left: -10%; top: 4%; background: #7c3aed; }
-.orb-b { right: -8%; bottom: -2%; background: #0891b2; animation-delay: -2.4s; }
-.content {
-  position: relative;
-  z-index: 3;
-  width: min(80%, 980px);
-  text-align: center;
-}
-.eyebrow {
-  display: inline-flex;
-  padding: 9px 14px;
-  border: 1px solid rgba(255,255,255,.14);
-  border-radius: 999px;
-  color: #b9c4d7;
-  font-size: clamp(11px, 1vw, 16px);
-  letter-spacing: .22em;
-  margin-bottom: 26px;
-  backdrop-filter: blur(10px);
-}
-h1 {
-  margin: 0;
-  font-size: clamp(44px, 7.8vw, 132px);
-  line-height: .93;
-  letter-spacing: -.055em;
-  font-weight: 800;
-  text-wrap: balance;
-}
-p {
-  margin: 28px 0 0;
-  font-size: clamp(15px, 1.8vw, 26px);
-  color: #98a6b9;
-}
-button {
-  margin-top: 30px;
-  border: 1px solid rgba(255,255,255,.16);
-  border-radius: 14px;
-  padding: 14px 19px;
-  background: rgba(255,255,255,.07);
-  color: white;
-  font: inherit;
-}
-@keyframes float {
-  from { transform: translate3d(-2%, -3%, 0) scale(.96); }
-  to   { transform: translate3d(5%, 6%, 0) scale(1.08); }
-}`,
-      js: `const content = document.querySelector('.content');
-content.animate([
-  { opacity: 0, transform: 'translateY(34px) scale(.985)', filter: 'blur(10px)' },
-  { opacity: 1, transform: 'translateY(0) scale(1)', filter: 'blur(0)' }
-], {
-  duration: 1100,
-  easing: 'cubic-bezier(.2,.75,.2,1)',
-  fill: 'both'
-});`
-    };
 
-    const editors = {
-      html: document.getElementById('htmlEditor'),
-      css: document.getElementById('cssEditor'),
-      js: document.getElementById('jsEditor')
-    };
-
-    const frame = document.getElementById('previewFrame');
-    const viewport = document.getElementById('viewportWrap');
-    const previewStatus = document.getElementById('previewStatus');
-    const resolutionLabel = document.getElementById('resolutionLabel');
-    const lineInfo = document.getElementById('lineInfo');
-    const toast = document.getElementById('toast');
-    const sizeSelect = document.getElementById('sizeSelect');
-    const fpsSelect = document.getElementById('fpsSelect');
-    const formatSelect = document.getElementById('formatSelect');
-
-    let autoTimer = null;
-    let activeTab = 'html';
-
-    function loadDefaults() {
-      Object.entries(defaults).forEach(([key, value]) => editors[key].value = value);
-      renderPreview();
-    }
-
-    function composeDocument() {
-      const html = editors.html.value;
-      const css = editors.css.value;
-      const js = editors.js.value;
-      return `<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><style>${css}</style></head><body>${html}<script>try { ${js} } catch (e) { console.error(e); }<\/script></body></html>`;
-    }
-
-    function renderPreview() {
-      previewStatus.textContent = 'Rendering…';
-      frame.srcdoc = composeDocument();
-      setTimeout(() => previewStatus.textContent = 'Live', 180);
-    }
-
-    function schedulePreview() {
-      clearTimeout(autoTimer);
-      autoTimer = setTimeout(renderPreview, 450);
-    }
-
-    function setTab(name) {
-      activeTab = name;
-      document.querySelectorAll('.tab').forEach(tab => tab.classList.toggle('active', tab.dataset.tab === name));
-      Object.entries(editors).forEach(([key, editor]) => editor.classList.toggle('active', key === name));
-      lineInfo.textContent = name.toUpperCase();
-      editors[name].focus();
-    }
-
-    function updateAspect() {
-      const [w, h] = sizeSelect.value.split('x').map(Number);
-      viewport.style.aspectRatio = `${w}/${h}`;
-      const ratio = w === h ? '1:1' : w > h ? '16:9' : '9:16';
-      resolutionLabel.textContent = `${w} × ${h} · ${ratio}`;
-    }
-
-    function showToast(message) {
-      toast.textContent = message;
-      toast.classList.add('show');
-      clearTimeout(showToast.t);
-      showToast.t = setTimeout(() => toast.classList.remove('show'), 2200);
-    }
-
-    document.querySelectorAll('.tab').forEach(tab => tab.addEventListener('click', () => setTab(tab.dataset.tab)));
-    Object.values(editors).forEach(editor => editor.addEventListener('input', schedulePreview));
-
-    document.getElementById('runBtn').addEventListener('click', () => {
-      renderPreview();
-      showToast('Preview refreshed');
-    });
-    document.getElementById('snapshotBtn').addEventListener('click', () => {
-      renderPreview();
-      showToast('Composition reloaded');
-    });
-    document.getElementById('resetBtn').addEventListener('click', () => {
-      loadDefaults();
-      showToast('Demo reset to V1 defaults');
-    });
-    document.getElementById('renderBtn').addEventListener('click', () => {
-      showToast('Render engine is planned for V2');
-    });
-
-    sizeSelect.addEventListener('change', updateAspect);
-    fpsSelect.addEventListener('change', () => showToast(`${fpsSelect.value} FPS selected`));
-    formatSelect.addEventListener('change', () => showToast(`${formatSelect.value.toUpperCase()} selected`));
-
-    document.addEventListener('keydown', (event) => {
-      if ((event.ctrlKey || event.metaKey) && event.key === 'Enter') {
-        event.preventDefault();
-        renderPreview();
-        showToast('Preview refreshed');
-      }
-      if (event.key === 'Tab' && document.activeElement?.classList.contains('editor')) {
-        event.preventDefault();
-        const el = document.activeElement;
-        const start = el.selectionStart;
-        const end = el.selectionEnd;
-        el.value = el.value.slice(0, start) + '  ' + el.value.slice(end);
-        el.selectionStart = el.selectionEnd = start + 2;
-        schedulePreview();
-      }
-    });
-
-    updateAspect();
-    loadDefaults();
-  </script>
+  <div class="toast" id="toast"></div>
 </body>
 </html>
