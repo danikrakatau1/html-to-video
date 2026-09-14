@@ -4,13 +4,15 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <meta name="color-scheme" content="dark" />
-  <title>HTML to Video — Studio V2.2.2</title>
+  <title>HTML to Video — Studio V2.3</title>
   <link rel="stylesheet" href="/styles-v222.css" />
   <script src="https://cdn.jsdelivr.net/npm/webm-muxer@5.1.2/build/webm-muxer.js" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/mp4-muxer@5.2.2/build/mp4-muxer.js" defer></script>
   <script src="/app-v21.js" defer></script>
   <script src="/app-v22.js" defer></script>
   <script src="/app-v221.js" defer></script>
   <script src="/app-v222.js" defer></script>
+  <script src="/app-v23.js" defer></script>
 </head>
 <body>
   <div class="shell">
@@ -19,11 +21,11 @@
         <div class="brand-mark">HV</div>
         <div class="brand-copy">
           <strong>HTML to Video</strong>
-          <span>Studio V2.2.2 · Cursor-Free Hard-Lock</span>
+          <span>Studio V2.3 · WebM + MP4 Hard-Lock</span>
         </div>
       </div>
       <div class="top-actions">
-        <div class="pill" id="capabilityLabel"><span class="dot"></span>Checking deterministic encoder…</div>
+        <div class="pill" id="capabilityLabel"><span class="dot"></span>Checking deterministic encoders…</div>
         <button class="btn" id="resetBtn">Reset</button>
         <button class="btn btn-primary" id="runBtn">▶ Run preview</button>
       </div>
@@ -77,8 +79,8 @@
               <option value="60" selected>60 FPS</option>
             </select>
             <select class="control" id="formatSelect" aria-label="Format">
-              <option value="webm" selected>WebM</option>
-              <option value="mp4">MP4</option>
+              <option value="webm" selected>WebM · VP9/VP8</option>
+              <option value="mp4">MP4 · H.264</option>
             </select>
             <input class="control duration" id="durationInput" type="number" min="1" max="120" step="0.5" value="6" aria-label="Duration seconds" title="Duration in seconds" />
           </div>
@@ -102,7 +104,7 @@
             <div class="timeline-head">
               <div class="timeline-title">
                 <strong>Timeline</strong>
-                <span>V2.2.2 keeps the exact deterministic frame clock and adds a cursor-free Pointer Lock guard before raw recording begins.</span>
+                <span>V2.3 keeps cursor-free deterministic WebM and adds deterministic H.264/MP4 with the same exact frame clock.</span>
               </div>
               <div class="transport">
                 <button class="btn" id="restartBtn">↺ Restart</button>
@@ -123,7 +125,7 @@
               <button class="btn btn-primary" id="renderBtn">● Render video</button>
             </div>
             <div class="progress-shell"><div class="progress-bar" id="progressBar"></div></div>
-            <div class="render-note" id="renderStatus">V2.2.2 hides the OS cursor with Pointer Lock before the raw capture recorder starts, then preserves the 360-frame deterministic WebCodecs final pass.</div>
+            <div class="render-note" id="renderStatus">V2.3 supports exact-frame WebM and MP4. MP4 uses H.264 WebCodecs + MP4 fast-start muxing while preserving cursor-free capture.</div>
           </div>
         </div>
       </section>
@@ -132,12 +134,12 @@
 
   <div class="modal-backdrop" id="captureModal">
     <div class="modal" role="dialog" aria-modal="true" aria-labelledby="captureTitle">
-      <h3 id="captureTitle">Start cursor-free deterministic render</h3>
+      <h3 id="captureTitle">Start deterministic video render</h3>
       <p>
-        First choose <strong style="color:var(--text)">This Tab</strong> in Chrome and press Share. V2.2.2 will then pause before recording and ask for one extra click to activate Pointer Lock. The OS cursor is hidden before the first recorded frame.
+        First choose <strong style="color:var(--text)">This Tab</strong> in Chrome and press Share. The cursor-free guard will pause before recording and ask for one extra click to activate Pointer Lock. The final pass then uses the selected deterministic encoder.
       </p>
       <p class="fineprint">
-        Requested output: <span id="modalFormat">WEBM · 1920×1080</span> · <span id="modalDuration">6 seconds</span>. Keep Pointer Lock active until capture finishes; do not press Escape during recording. The deterministic hard-lock encoder still requires the exact duration × FPS frame count.
+        Requested output: <span id="modalFormat">WEBM · 1920×1080</span> · <span id="modalDuration">6 seconds</span>. WebM uses VP9/VP8 hard-lock. MP4 uses H.264/AVC hard-lock with fast-start MP4 muxing. Both require exact duration × FPS output frames.
       </p>
       <div class="actions">
         <button class="btn" id="modalCancel">Cancel</button>
