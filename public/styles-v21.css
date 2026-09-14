@@ -1,0 +1,19 @@
+@import url('/styles.css');
+
+/* V2.1 capture hardening: keep the application cursor out of the captured surface. */
+.capture-mode,
+.capture-mode * {
+  cursor: none !important;
+}
+
+.capture-mode {
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+/* Prevent accidental selection/caret artifacts during the capture window. */
+.capture-mode iframe,
+.capture-mode .viewport-wrap {
+  outline: 0 !important;
+  caret-color: transparent !important;
+}
