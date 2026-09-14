@@ -1,0 +1,64 @@
+@import url('/styles-v21.css');
+
+/* V2.2.2 Cursor-Free Capture Guard */
+.hv-cursor-lock-gate {
+  position: fixed;
+  inset: 0;
+  z-index: 2147483646;
+  display: none;
+  place-items: center;
+  padding: 24px;
+  background: rgba(3, 6, 11, .82);
+  backdrop-filter: blur(14px);
+  cursor: default !important;
+}
+
+.hv-cursor-lock-gate.show { display: grid; }
+
+.hv-cursor-lock-card {
+  width: min(520px, 100%);
+  border: 1px solid rgba(255,255,255,.15);
+  border-radius: 20px;
+  padding: 22px;
+  background: #0e141e;
+  box-shadow: 0 24px 90px rgba(0,0,0,.5);
+}
+
+.hv-cursor-lock-card h3 {
+  margin: 0 0 9px;
+  font-size: 18px;
+}
+
+.hv-cursor-lock-card p {
+  margin: 0;
+  color: #99a5b8;
+  font-size: 13px;
+  line-height: 1.65;
+}
+
+.hv-cursor-lock-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 9px;
+  margin-top: 18px;
+}
+
+.hv-cursor-lock-status {
+  margin-top: 12px;
+  min-height: 18px;
+  color: #8f9aad;
+  font-size: 11px;
+}
+
+.hv-cursor-lock-status.ok { color: #34d399; }
+.hv-cursor-lock-status.error { color: #fb7185; }
+
+.hv-cursor-lock-gate .btn {
+  cursor: pointer !important;
+}
+
+/* While pointer lock is active Chrome hides the OS cursor. The CSS rule is a second layer. */
+.hv-pointer-locked,
+.hv-pointer-locked * {
+  cursor: none !important;
+}
