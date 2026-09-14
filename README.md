@@ -2,93 +2,99 @@
 
 Browser-based HTML/CSS/JavaScript animation studio deployed on Cloudflare Workers.
 
-## Current checkpoint — Studio V2.4
+## Current checkpoint — Studio V2.5
 
-V2.4 keeps the proven cursor-free deterministic WebM/MP4 engine and adds quality controls, named social-video presets, and direct standalone HTML import.
+V2.5 keeps the proven V2.4 cursor-free deterministic WebM/MP4 engine and adds a local soundtrack + asset pipeline.
 
 ### Current features
 
 - HTML / CSS / JavaScript live preview
-- direct `.html` / `.htm` file import and drag-and-drop
-- full-document preview mode for imported standalone HTML files
+- direct standalone `.html` import and drag-and-drop
+- local asset import for images, fonts, CSS, JavaScript, video and audio
+- project-folder import (`index.html` + relative local assets)
+- relative local asset rewriting to browser-safe in-memory data URLs
+- external local CSS/JS inlining when imported as project assets
+- soundtrack upload plus built-in V2.5 test tone
+- timeline soundtrack preview sync
+- soundtrack volume, timeline start offset, loop and include/exclude controls
+- deterministic AAC-LC audio encoding for MP4
+- exact-duration audio timeline generation at 48 kHz stereo
+- MP4 mux containing deterministic H.264 video + AAC audio
+- V2.4 video-only WebM/MP4 paths remain unchanged when no soundtrack is enabled
 - 24 / 30 / 60 FPS targets
-- 1920×1080 landscape, 1080×1920 TikTok/Reels/Shorts, 1080×1080 square, 1280×720 HD, and 720×1280 social-draft presets
+- landscape, TikTok/Reels/Shorts 9:16, square and lightweight social presets
 - Draft / Standard / High / Master quality profiles
-- quality-aware raw capture bitrate and final WebCodecs bitrate targets
-- exact `duration × FPS` final frame count
+- exact `duration × FPS` final video-frame count
 - pixel-perfect target dimensions
 - cursor-free Pointer Lock capture guard
 - tiny capture-handshake black-prefix cleanup
-- deterministic WebM export with VP9/VP8
-- deterministic MP4 export with H.264/AVC
-- hardware → neutral → software encoder probing
-- MP4 fast-start layout for better playback/streaming compatibility
-- no silent WebM fallback when an MP4 hard-lock request fails
-- local browser rendering; composition source is not uploaded to a render server
+- hardware → neutral → software video encoder probing
+- local browser rendering; project source and soundtrack are not uploaded to a render server
 
-## V2.4 render flow
+## V2.5 pipeline
 
 ```text
 HTML / CSS / JS
-or imported standalone .html
+or standalone HTML
+or local project folder
+      ↓
+Local asset resolver
+(images / fonts / CSS / JS / media)
       ↓
 Sandboxed live preview
       ↓
-Choose format / resolution / FPS / quality
+Optional soundtrack
+(volume / start / loop)
       ↓
 Chrome: This Tab → Share
       ↓
 Cursor-Free Gate
       ↓
-Pointer Lock / OS cursor hidden
+Pixel-perfect raw capture
       ↓
-Quality-aware raw local capture
+Exact deterministic H.264 video frames
+      +
+Exact 48 kHz PCM soundtrack timeline
       ↓
-Pixel-perfect crop
+WebCodecs
+video → H.264 / AVC
+audio → AAC-LC
       ↓
-Selected final encoder
-      ├── WebM → VP9 / VP8
-      └── MP4  → H.264 / AVC
+Fast-start MP4 mux
       ↓
-Quality-aware WebCodecs bitrate
-      ↓
-Exact deterministic timestamps
-      ↓
-WebM or fast-start MP4 mux
-      ↓
-Download
+MP4 with video + audio
 ```
 
-## Quality profiles
+## Audio behavior
+
+When **Include** is enabled and a soundtrack is loaded, V2.5 automatically uses MP4/H.264 and adds AAC audio to the final file. The soundtrack is sampled against the same composition timeline rather than recorded from speakers or the screen-share audio path.
 
 ```text
-Draft    → fast previews / lower bitrate
-Standard → balanced export
-High     → premium default
-Master   → highest target bitrate / maximum detail
+Volume   → 0–100%
+Start    → timeline second when soundtrack begins
+Loop     → repeat soundtrack until composition duration ends
+Include  → enable/disable soundtrack without deleting it
 ```
 
-The quality layer scales both the raw browser-capture bitrate and the final WebCodecs target bitrate while keeping the deterministic frame clock unchanged.
+For a 6-second render, the audio timeline contains exactly `6 × 48000 = 288000` stereo sample frames before AAC encoding.
 
-## Social presets
+## Local assets and project folders
+
+Use **+ Assets** to add local files referenced by the current HTML, or **Project Folder** to choose a whole local project directory. Project Folder prefers `index.html` and makes sibling relative assets available to the sandboxed preview without uploading them to a server.
+
+V2.5 can resolve common HTML/CSS/JS references such as:
 
 ```text
-1920×1080 → YouTube / landscape 16:9
-1080×1920 → TikTok / Reels / Shorts 9:16
-1080×1080 → square 1:1
-1280×720  → HD landscape
-720×1280  → lightweight social draft 9:16
+./images/hero.png
+assets/font.woff2
+./styles/main.css
+./scripts/app.js
+video/intro.mp4
 ```
 
-## HTML import
+## Recommended first V2.5 validation
 
-Press **Import HTML** or drag a `.html` file anywhere onto the Studio. V2.4 detects a full HTML document and renders it directly inside the isolated preview while still injecting the Studio animation-control bridge.
-
-For the most reliable result, imported HTML should be self-contained or reference remote assets with normal web URLs. Local relative assets that only exist beside the original file are not automatically uploaded with the HTML file.
-
-## Recommended V2.4 validation
-
-Use desktop Chrome and test:
+Use desktop Chrome:
 
 ```text
 Resolution: 1080×1920 · TikTok / Reels / Shorts
@@ -96,29 +102,42 @@ FPS:        60
 Format:     MP4 · H.264
 Quality:    High
 Duration:   6 seconds
+Audio:      ♫ Test Tone
+Volume:     90%
+Start:      0.0 s
+Loop:       ON
 ```
 
-Press **Render video**, choose **This Tab**, press **Share**, then click **Lock cursor & continue**. Do not press Escape until raw capture finishes.
+Press **Render video**, choose **This Tab**, press **Share**, then click **Lock cursor & continue**.
 
-Expected target for a 6-second 60 FPS render:
+Expected target:
 
 ```text
-Frames      : 360 / 360
-FPS         : deterministic 60
-Resolution  : exact selected preset
-Black start : none
-Cursor      : absent
-Container   : selected WebM or MP4
+Container     : MP4
+Video         : H.264 / AVC
+Audio         : AAC-LC
+Resolution    : 1080×1920
+Video frames  : 360 / 360
+FPS           : deterministic 60
+Audio rate    : 48 kHz stereo
+Duration      : ~6.000 s
+Black start   : none
+Cursor        : absent
 ```
 
-Diagnostics are available in DevTools:
+Diagnostics:
 
 ```js
 hvDiagnostics()
 hvCursorDiagnostics()
 hvMp4Diagnostics()
 hvV24Diagnostics()
+hvV25Diagnostics()
 ```
+
+## Current format note
+
+V2.5 deterministic soundtrack muxing targets **MP4 + H.264 + AAC**. WebM remains available through the proven V2.4 video-only path. WebM/Opus soundtrack muxing can be added as a later parity step.
 
 ## Deployment
 
