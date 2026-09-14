@@ -4,8 +4,8 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <meta name="color-scheme" content="dark" />
-  <title>HTML to Video — Studio V2.4</title>
-  <link rel="stylesheet" href="/styles-v24.css" />
+  <title>HTML to Video — Studio V2.5</title>
+  <link rel="stylesheet" href="/styles-v25.css" />
   <script src="https://cdn.jsdelivr.net/npm/webm-muxer@5.1.2/build/webm-muxer.js" defer></script>
   <script src="https://cdn.jsdelivr.net/npm/mp4-muxer@5.2.2/build/mp4-muxer.js" defer></script>
   <script src="/app-v21.js" defer></script>
@@ -15,6 +15,7 @@
   <script src="/app-v23.js" defer></script>
   <script src="/app-v24.js" defer></script>
   <script src="/app-v24-test.js" defer></script>
+  <script src="/app-v25.js" defer></script>
 </head>
 <body>
   <div class="shell">
@@ -23,7 +24,7 @@
         <div class="brand-mark">HV</div>
         <div class="brand-copy">
           <strong>HTML to Video</strong>
-          <span>Studio V2.4 · Quality + Social + HTML Import</span>
+          <span>Studio V2.5 · Audio + Local Assets</span>
         </div>
       </div>
       <div class="top-actions">
@@ -113,7 +114,7 @@
             <div class="timeline-head">
               <div class="timeline-title">
                 <strong>Timeline</strong>
-                <span>V2.4 keeps exact deterministic WebM/MP4 and adds quality profiles, social presets, and standalone HTML import.</span>
+                <span>V2.5 adds deterministic AAC soundtrack muxing plus local assets/project folders while keeping the exact V2.4 frame clock.</span>
               </div>
               <div class="transport">
                 <button class="btn" id="restartBtn">↺ Restart</button>
@@ -134,7 +135,7 @@
               <button class="btn btn-primary" id="renderBtn">● Render video</button>
             </div>
             <div class="progress-shell"><div class="progress-bar" id="progressBar"></div></div>
-            <div class="render-note" id="renderStatus">V2.4: choose Draft / Standard / High / Master quality, render landscape or vertical social video, or import a standalone .html file directly.</div>
+            <div class="render-note" id="renderStatus">V2.5: add a soundtrack, import local assets/project folders, and export exact-frame MP4 with deterministic AAC audio.</div>
           </div>
         </div>
       </section>
@@ -143,12 +144,12 @@
 
   <div class="modal-backdrop" id="captureModal">
     <div class="modal" role="dialog" aria-modal="true" aria-labelledby="captureTitle">
-      <h3 id="captureTitle">Start V2.4 deterministic render</h3>
+      <h3 id="captureTitle">Start V2.5 deterministic render</h3>
       <p>
-        First choose <strong style="color:var(--text)">This Tab</strong> in Chrome and press Share. The cursor-free guard will pause before recording and ask for one extra click to activate Pointer Lock. The final pass then uses the selected deterministic encoder and quality profile.
+        First choose <strong style="color:var(--text)">This Tab</strong> in Chrome and press Share. The cursor-free guard pauses before recording and asks for one extra click to activate Pointer Lock. V2.5 then builds the selected exact-frame video and, when enabled, muxes the soundtrack deterministically into MP4.
       </p>
       <p class="fineprint">
-        Requested output: <span id="modalFormat">WEBM · 1920×1080</span> · <span id="modalDuration">6 seconds</span> · <span id="modalQuality">High quality</span>. WebM uses VP9/VP8 hard-lock. MP4 uses H.264/AVC hard-lock. Both keep exact duration × FPS output frames.
+        Requested output: <span id="modalFormat">MP4 · 1920×1080</span> · <span id="modalDuration">6 seconds</span> · <span id="modalQuality">High quality</span> · <span id="modalAudio">video only</span>. Soundtrack export uses AAC-LC in MP4; video-only WebM and MP4 keep the proven V2.4 paths.
       </p>
       <div class="actions">
         <button class="btn" id="modalCancel">Cancel</button>
