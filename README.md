@@ -2,82 +2,87 @@
 
 Browser-based HTML/CSS/JavaScript animation studio deployed on Cloudflare Workers.
 
-## Current checkpoint — Studio V2.2.2
+## Current checkpoint — Studio V2.3
 
-V2.2.2 keeps the V2.2.1 pixel-perfect deterministic encoder and adds a cursor-free capture guard.
+V2.3 keeps the V2.2.2 cursor-free deterministic WebM pipeline and adds deterministic MP4/H.264 export.
 
-### What changed in V2.2.2
+### Current features
 
-- keeps the exact deterministic WebCodecs frame clock from V2.2.1
-- keeps the exact `duration × FPS` output-frame requirement (6 s × 60 FPS = 360 frames)
-- intercepts the browser share flow before raw recording begins
-- after Chrome shares **This Tab**, recording pauses until Pointer Lock is activated
-- Pointer Lock hides the operating-system cursor before the first recorded frame
-- CSS cursor suppression remains as a second protection layer
-- if Pointer Lock is released during capture, the render is stopped instead of silently returning a cursor-contaminated file
-- exposes cursor diagnostics through `window.__HV_CURSOR_DIAGNOSTICS` and `hvCursorDiagnostics()`
-- keeps VP9/VP8 hardware → neutral → software encoder probing
-- keeps pixel-perfect target dimensions and tiny capture-handshake black-prefix cleanup
+- HTML / CSS / JavaScript live preview
+- 24 / 30 / 60 FPS targets
+- 1920×1080, 1080×1920, 1080×1080 and 1280×720 outputs
+- exact `duration × FPS` final frame count
+- pixel-perfect target dimensions
+- cursor-free Pointer Lock capture guard
+- tiny capture-handshake black-prefix cleanup
+- deterministic WebM export with VP9/VP8
+- deterministic MP4 export with H.264/AVC
+- hardware → neutral → software encoder probing
+- MP4 fast-start layout for better playback/streaming compatibility
+- no silent WebM fallback when an MP4 hard-lock request fails
+- local browser rendering; composition source is not uploaded to a render server
 
-## V2.2.2 render flow
+## V2.3 render flow
 
 ```text
 HTML / CSS / JS
       ↓
 Sandboxed live preview
       ↓
-Chrome: choose This Tab → Share
+Chrome: This Tab → Share
       ↓
 Cursor-Free Gate
       ↓
-Click “Lock cursor & continue”
-      ↓
-Pointer Lock active / OS cursor hidden
+Pointer Lock / OS cursor hidden
       ↓
 Raw local capture
       ↓
-Pixel-perfect source crop
+Pixel-perfect crop
       ↓
-VP9 / VP8 encoder probe
- hardware → neutral → software
+Selected final encoder
+      ├── WebM → VP9 / VP8
+      └── MP4  → H.264 / AVC
       ↓
 Exact WebCodecs timestamps
       ↓
 360 frames for 6 s @ 60 FPS
       ↓
-WebM mux
+WebM or fast-start MP4 mux
       ↓
-Cursor-free deterministic final video
+Download
 ```
 
-## Recommended validation test
+## Recommended MP4 validation
 
 Use desktop Chrome and select:
 
 ```text
 Resolution: 1920×1080
 FPS:        60
-Format:     WebM
+Format:     MP4 · H.264
 Duration:   6 seconds
 ```
 
-Press **Render video**, choose **This Tab** in Chrome's sharing dialog, then press **Share**. When the V2.2.2 gate appears, click **Lock cursor & continue** once. Do not press Escape until the raw capture finishes.
+Press **Render video**, choose **This Tab**, press **Share**, then click **Lock cursor & continue**. Do not press Escape until raw capture finishes.
 
-Expected final verification target:
+Expected target:
 
 ```text
-Resolution : 1920×1080 throughout
-Frames     : 360 / 360
-FPS        : 60 deterministic cadence
-Black start: none
-Cursor     : absent
+Container   : MP4
+Codec       : H.264 / AVC
+Resolution  : 1920×1080 throughout
+Frames      : 360 / 360
+FPS         : 60 deterministic cadence
+Black start : none
+Cursor      : absent
 ```
 
-Diagnostics are available in DevTools with:
+Diagnostics are available in DevTools:
 
 ```js
 hvDiagnostics()
 hvCursorDiagnostics()
+hvMp4Diagnostics()
 ```
 
 ## Deployment
