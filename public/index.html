@@ -4,11 +4,12 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <meta name="color-scheme" content="dark" />
-  <title>HTML to Video — Studio V2.2</title>
+  <title>HTML to Video — Studio V2.2.1</title>
   <link rel="stylesheet" href="/styles-v21.css" />
   <script src="https://cdn.jsdelivr.net/npm/webm-muxer@5.1.2/build/webm-muxer.js" defer></script>
   <script src="/app-v21.js" defer></script>
   <script src="/app-v22.js" defer></script>
+  <script src="/app-v221.js" defer></script>
 </head>
 <body>
   <div class="shell">
@@ -17,7 +18,7 @@
         <div class="brand-mark">HV</div>
         <div class="brand-copy">
           <strong>HTML to Video</strong>
-          <span>Studio V2.2 · Deterministic Frame Clock</span>
+          <span>Studio V2.2.1 · Deterministic Hard-Lock</span>
         </div>
       </div>
       <div class="top-actions">
@@ -100,7 +101,7 @@
             <div class="timeline-head">
               <div class="timeline-title">
                 <strong>Timeline</strong>
-                <span>V2.2 final pass uses exact per-frame timestamps independent of monitor refresh rate.</span>
+                <span>V2.2.1 hard-locks WebCodecs. A 6 second 60 FPS export must contain exactly 360 timed frames.</span>
               </div>
               <div class="transport">
                 <button class="btn" id="restartBtn">↺ Restart</button>
@@ -121,7 +122,7 @@
               <button class="btn btn-primary" id="renderBtn">● Render video</button>
             </div>
             <div class="progress-shell"><div class="progress-bar" id="progressBar"></div></div>
-            <div class="render-note" id="renderStatus">V2.2 uses WebCodecs to encode an exact deterministic frame clock after the pixel-perfect capture pass.</div>
+            <div class="render-note" id="renderStatus">V2.2.1 probes hardware, neutral and software VP9/VP8 encoders. If deterministic encoding fails, render fails visibly instead of silently falling back.</div>
           </div>
         </div>
       </section>
@@ -130,13 +131,13 @@
 
   <div class="modal-backdrop" id="captureModal">
     <div class="modal" role="dialog" aria-modal="true" aria-labelledby="captureTitle">
-      <h3 id="captureTitle">Start deterministic browser render</h3>
+      <h3 id="captureTitle">Start deterministic hard-lock render</h3>
       <p>
-        V2.2 first captures the composition locally, then rebuilds the final video frame-by-frame with exact WebCodecs timestamps. At 60 FPS, a 6 second export contains exactly 360 timed frames.
+        V2.2.1 first captures the composition locally, then rebuilds the final video frame-by-frame with exact WebCodecs timestamps. At 60 FPS, a 6 second export must contain exactly 360 timed frames.
         When Chrome asks what to share, choose <strong style="color:var(--text)">This Tab</strong> / the current HTML to Video tab, then press Share.
       </p>
       <p class="fineprint">
-        Requested output: <span id="modalFormat">WEBM · 1920×1080</span> · <span id="modalDuration">6 seconds</span>. V2.2 also suppresses the tiny capture-handshake black prefix when detected. The deterministic encoder currently targets WebM VP9/VP8; MP4 requests may fall back to WebM or to the V2.1 compatibility encoder depending on browser support.
+        Requested output: <span id="modalFormat">WEBM · 1920×1080</span> · <span id="modalDuration">6 seconds</span>. V2.2.1 tries VP9 and VP8 across hardware, neutral and software acceleration preferences. There is no silent V2.1 fallback in deterministic mode: if the encoder cannot produce the required frame clock, the render reports an explicit error instead of returning a misleading file.
       </p>
       <div class="actions">
         <button class="btn" id="modalCancel">Cancel</button>
