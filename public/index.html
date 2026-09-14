@@ -4,9 +4,11 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <meta name="color-scheme" content="dark" />
-  <title>HTML to Video — Studio V2.1</title>
+  <title>HTML to Video — Studio V2.2</title>
   <link rel="stylesheet" href="/styles-v21.css" />
+  <script src="https://cdn.jsdelivr.net/npm/webm-muxer@5.1.2/build/webm-muxer.js" defer></script>
   <script src="/app-v21.js" defer></script>
+  <script src="/app-v22.js" defer></script>
 </head>
 <body>
   <div class="shell">
@@ -15,11 +17,11 @@
         <div class="brand-mark">HV</div>
         <div class="brand-copy">
           <strong>HTML to Video</strong>
-          <span>Studio V2.1 · Pixel-Perfect Browser Capture</span>
+          <span>Studio V2.2 · Deterministic Frame Clock</span>
         </div>
       </div>
       <div class="top-actions">
-        <div class="pill" id="capabilityLabel"><span class="dot"></span>Checking browser recorder…</div>
+        <div class="pill" id="capabilityLabel"><span class="dot"></span>Checking deterministic encoder…</div>
         <button class="btn" id="resetBtn">Reset</button>
         <button class="btn btn-primary" id="runBtn">▶ Run preview</button>
       </div>
@@ -98,7 +100,7 @@
             <div class="timeline-head">
               <div class="timeline-title">
                 <strong>Timeline</strong>
-                <span>Basic Web Animations seek/pause bridge. Complex JS/GSAP remains best-effort.</span>
+                <span>V2.2 final pass uses exact per-frame timestamps independent of monitor refresh rate.</span>
               </div>
               <div class="transport">
                 <button class="btn" id="restartBtn">↺ Restart</button>
@@ -119,7 +121,7 @@
               <button class="btn btn-primary" id="renderBtn">● Render video</button>
             </div>
             <div class="progress-shell"><div class="progress-bar" id="progressBar"></div></div>
-            <div class="render-note" id="renderStatus">V2.1 stabilizes capture first, then normalizes every frame to the exact selected output resolution.</div>
+            <div class="render-note" id="renderStatus">V2.2 uses WebCodecs to encode an exact deterministic frame clock after the pixel-perfect capture pass.</div>
           </div>
         </div>
       </section>
@@ -128,13 +130,13 @@
 
   <div class="modal-backdrop" id="captureModal">
     <div class="modal" role="dialog" aria-modal="true" aria-labelledby="captureTitle">
-      <h3 id="captureTitle">Start pixel-perfect browser render</h3>
+      <h3 id="captureTitle">Start deterministic browser render</h3>
       <p>
-        V2.1 records the composition locally in your browser, waits for the capture stream to stabilize, then runs a second canvas pass so the downloaded file starts and stays at the exact selected resolution.
+        V2.2 first captures the composition locally, then rebuilds the final video frame-by-frame with exact WebCodecs timestamps. At 60 FPS, a 6 second export contains exactly 360 timed frames.
         When Chrome asks what to share, choose <strong style="color:var(--text)">This Tab</strong> / the current HTML to Video tab, then press Share.
       </p>
       <p class="fineprint">
-        Requested output: <span id="modalFormat">WEBM · 1920×1080</span> · <span id="modalDuration">6 seconds</span>. Cursor suppression, Element/Region Capture and stage cropping are best-effort browser features; if direct stage isolation is unavailable, V2.1 automatically crops the clean capture layout during the normalization pass. MP4 falls back to WebM when the browser does not expose an MP4 MediaRecorder codec.
+        Requested output: <span id="modalFormat">WEBM · 1920×1080</span> · <span id="modalDuration">6 seconds</span>. V2.2 also suppresses the tiny capture-handshake black prefix when detected. The deterministic encoder currently targets WebM VP9/VP8; MP4 requests may fall back to WebM or to the V2.1 compatibility encoder depending on browser support.
       </p>
       <div class="actions">
         <button class="btn" id="modalCancel">Cancel</button>
